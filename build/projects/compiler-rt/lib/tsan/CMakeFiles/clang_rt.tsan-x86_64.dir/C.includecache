@@ -1,0 +1,14 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/daehee/fuzzcoin/llvm/projects/compiler-rt/lib/tsan/../sanitizer_common/sanitizer_asm.h
+
+/home/daehee/fuzzcoin/llvm/projects/compiler-rt/lib/tsan/rtl/tsan_rtl_amd64.S
+sanitizer_common/sanitizer_asm.h
+/home/daehee/fuzzcoin/llvm/projects/compiler-rt/lib/tsan/rtl/sanitizer_common/sanitizer_asm.h
+

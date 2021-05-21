@@ -1,0 +1,1 @@
+/usr/bin/clang   -fPIC -Werror=date-time -Wall -W -Wno-unused-parameter -Wwrite-strings -Wmissing-field-initializers -pedantic -Wno-long-long -Wno-comment -ffunction-sections -fdata-sections -O3 -DNDEBUG   -fuse-ld=gold -Wl,-allow-shlib-undefined  -Wl,-O3 -Wl,--gc-sections CMakeFiles/count.dir/count.c.o  -o ../../bin/count -lpthread -Wl,-rpath,"\$ORIGIN/../lib" 

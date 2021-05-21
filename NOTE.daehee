@@ -1,0 +1,5 @@
+## This project is forked from fuzzcoin old version.
+build -> get a new clang
+compile with clang -> execute -> get hash (via stdout? file?)
+set parameters with `.fuzzcoin.conf` file (put it at current dir)
+

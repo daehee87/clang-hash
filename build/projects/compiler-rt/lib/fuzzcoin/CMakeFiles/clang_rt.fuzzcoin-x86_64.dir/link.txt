@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../../../../lib/clang/6.0.0/lib/linux/libclang_rt.fuzzcoin-x86_64.a  CMakeFiles/RTFuzzcoinLib.x86_64.dir/fuzzcoin.cpp.o
+/usr/bin/ranlib ../../../../lib/clang/6.0.0/lib/linux/libclang_rt.fuzzcoin-x86_64.a
