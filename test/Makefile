@@ -1,17 +1,9 @@
 CC=../build/bin/clang
 CXX=../build/bin/clang++
-CFLAGS=-fsanitize=fuzzcoin
+CFLAGS=-fsanitize=fuzzcoin -fno-strict-aliasing
 
-all: test bof cpptest
+all: test
 
 test: test.c
 	$(CC) $(CFLAGS) -o $@ $<
 
-bof: bof.c
-	$(CC) $(CFLAGS),address -o $@ $<
-
-cpptest: cpptest.cpp
-	$(CXX) $(CFLAGS),address -o $@ $<
-
-clean:
-	rm *.cov test bof cpptest

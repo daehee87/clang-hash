@@ -116,9 +116,8 @@ bool ParseFrameDescription(const char *frame_descr,
   return true;
 }
 
-// -------------------- Different kinds of reports ----------------- {{{
+// -------------------- Different kinds of reports ----------------- {{{1
 
-#include <stdio.h>
 // Use ScopedInErrorReport to run common actions just before and
 // immediately after printing error report.
 class ScopedInErrorReport {
@@ -130,7 +129,8 @@ class ScopedInErrorReport {
     // We can lock them only here to avoid self-deadlock in case of
     // recursive reports.
     asanThreadRegistry().Lock();
-    Printf("=================================================================\n");
+    Printf(
+        "=================================================================\n");
   }
 
   ~ScopedInErrorReport() {

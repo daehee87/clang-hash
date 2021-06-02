@@ -24,7 +24,6 @@
 namespace __sanitizer {
 
 void CatastrophicErrorWrite(const char *buffer, uptr length) {
-  return;	// this happens when ASAN report it self has errors
   WriteToFile(kStderrFd, buffer, length);
 }
 
@@ -32,9 +31,6 @@ StaticSpinMutex report_file_mu;
 ReportFile report_file = {&report_file_mu, kStderrFd, "", "", 0};
 
 void RawWrite(const char *buffer) {
-  return;	// idk why commenting out upper Print function causes problem..?
-  // I think upper level report routine checks the 
-  // report_file object to see if things were actually written
   report_file.Write(buffer, internal_strlen(buffer));
 }
 

@@ -48,30 +48,7 @@ void SetUserDieCallback(DieCallbackType callback) {
   UserDieCallback = callback;
 }
 
-// we use obfuscation later...
-#include <stdio.h>
-void fakeBugReport1(){
-  fprintf(stderr, "execution hash : 138c6a89fbd90231\n");
-  internal__exit(common_flags()->exitcode);
-}
-void fakeBugReport2(){
-  fprintf(stderr, "execution hash : 238c6a89fbd90231\n");
-  internal__exit(common_flags()->exitcode);
-}
-void fakeBugReport3(){
-  fprintf(stderr, "execution hash : 338c6a89fbd90231\n");
-  internal__exit(common_flags()->exitcode);
-}
-void fakeBugReport4(){
-  fprintf(stderr, "execution hash : 438c6a89fbd90231\n");
-  internal__exit(common_flags()->exitcode);
-}
-
-// change this for hiding bug report.
 void NORETURN Die() {
-
-  fakeBugReport1();	// will use obfuscation later..
-
   if (UserDieCallback)
     UserDieCallback();
   for (int i = kMaxNumOfInternalDieCallbacks - 1; i >= 0; i--) {

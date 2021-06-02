@@ -301,8 +301,6 @@ static void NOINLINE SharedPrintfCode(bool append_pid, const char *format,
 
 FORMAT(1, 2)
 void Printf(const char *format, ...) {
-
-//  return;
   va_list args;
   va_start(args, format);
   SharedPrintfCode(false, format, args);
@@ -312,8 +310,6 @@ void Printf(const char *format, ...) {
 // Like Printf, but prints the current PID before the output string.
 FORMAT(1, 2)
 void Report(const char *format, ...) {
-
-//  return;
   va_list args;
   va_start(args, format);
   SharedPrintfCode(true, format, args);

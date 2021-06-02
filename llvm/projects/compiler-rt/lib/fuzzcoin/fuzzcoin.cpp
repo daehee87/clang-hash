@@ -5,8 +5,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <fcntl.h>
-#include <unistd.h>
 
 #pragma pack(1)
 typedef struct _tagCRC64{
@@ -145,7 +143,6 @@ char* table="\x00\x00\x00\x00\x00\x00\x00\x00\x6F\x5F\xA7\x03\xBE\x4C\x2E\xB3"
 
 unsigned int* g_table;
 CRC64 g_hash;
-int64_t g_gas;
 
 unsigned int shr_edx(unsigned int edx, unsigned int eax){
 	return edx >> 8;
@@ -207,144 +204,39 @@ CRC64 crc64(unsigned char in, unsigned int edx, unsigned int eax){
 	return res;
 }
 
-#define COV_MAP_SIZE 4096*16   // 64KB map
-unsigned char cov_map[COV_MAP_SIZE];         // coverage bitmap
-static unsigned int prev_id;
-void FuzzTrace(int32_t id){
-    // this approach is deprecated (for fixed CFG).
-    /* uint64_t addr = (uint64_t)__builtin_return_address(0);
-    unsigned int offset;
-    offset = (uint32_t)((uint64_t)FuzzTrace - addr);
-    uint8_t key = 0;
-    CRC64 hash;
+void FuzzTrace() {
+    int64_t addr = (int64_t)__builtin_return_address(0);
+    int8_t key=0;
 
-    // update block hash (32bit)
-    key = (int8_t)(offset & 0xff);
-    hash = crc64(key, hash.edx, hash.eax);
-    key = (int8_t)(offset>>8 & 0xff);
-    hash = crc64(key, hash.edx, hash.eax);
-    key = (int8_t)(offset>>16 & 0xff);
-    hash = crc64(key, hash.edx, hash.eax);
-    key = (int8_t)(offset>>24 & 0xff);
-    hash = crc64(key, hash.edx, hash.eax);
+    // output : input : clobbered
+    // asm ("lea 0x0(%%rip), %0\n":"=r"(addr));      // get RIP
 
-    unsigned int id = hash.edx ^ hash.eax;
-    */
-
-    printf("[DEBUG] Block ID: %08X\n", id);
-
-    // calculate hash for edge coverage (prev_id, id)
-    unsigned int map_idx = prev_id ^ id;
-    map_idx = map_idx % COV_MAP_SIZE;         // squeeze 32bit block ID into map size
-
-    int byte_idx = map_idx / 8;
-    int bit_idx = map_idx % 8;
-    char byte = cov_map[byte_idx];
-    byte = byte | (1 << bit_idx);       // set bit
-    cov_map[byte_idx] = byte;           // update bitmap
-
-    prev_id = id;   // update previous id.
-
-    // decrease gas
-    g_gas = g_gas - 1;
-    if(!g_gas){
-        exit(0);    // call exit handler
-    }
+    // update hash
+    key = (int8_t)(addr & 0xff);
+    g_hash = crc64(key, g_hash.edx, g_hash.eax);
 }
 
 bool isFinished;
 void exitHandler(){
     int64_t hash = 0;
-
-    if(isFinished){
-        return;
-    }
-
-    // calculate CRC64 of coverage map.
-    int i=0;
-    for(i=0; i<COV_MAP_SIZE; i++){
-        g_hash = crc64( cov_map[i], g_hash.edx, g_hash.eax );
-    }
     hash = g_hash.edx;
     hash = hash << 32;
     hash = hash | g_hash.eax;
-
-    fprintf(stderr, "coverage map digest: FUZZCOIN{%16llx}\n", hash);
-
-    char fname[256];
-    memset(fname, 0, 256);
-    snprintf(fname, 255, "%16llx.cov", hash);
-
-    // output coverage to file
-    int fd = open(fname, O_TRUNC|O_CREAT|O_RDWR, 0644);
-    if(fd<0){
-        fprintf(stderr, "[ERROR] coverage map file open failed\n");
-        return;
+    if(!isFinished){
+        fprintf(stderr, "execution hash : %llx\n", hash);
+        isFinished = true;
     }
-
-    int r = write(fd, (char*)cov_map, COV_MAP_SIZE);
-    if(r!=COV_MAP_SIZE){
-        fprintf(stderr, "[ERROR] coverage map output failed\n");
-        return;
-    }
-
-    close(fd);
-
-    // wrapper script will generate the real execution hash -> sha1(input|coverage)
-    isFinished = true;
 }
 
 extern "C" SANITIZER_INTERFACE_ATTRIBUTE
 void InitFuzzcoin(){
-    // setup exit handler
+    //printf("this is INIT! :D\n");
     int res = atexit( exitHandler );
-    if(res!=0){
-        fprintf(stderr, "FATAL: cannot install atexit handler\n");
-        isFinished = true;
-        _exit(0);
-    }
     isFinished = false;
-
-    // read configuration file
-    int fd = open("fuzzcoin.conf", O_RDONLY);
-    if(fd<0){
-        fprintf(stderr, "FATAL: cannot open 'fuzzcoin.conf'\n");
-        isFinished = true;
-        _exit(0);
-    }
-
-    // parse config file
-    // init seed
-    unsigned int eax, edx;
-    res = read(fd, &eax, 4);
-    res += read(fd, &edx, 4);
-
-    if(res!=8){
-        fprintf(stderr, "FATAL: cannot read 'fuzzcoin.conf' contents (seed)\n");
-        isFinished = true;
-        _exit(0);
-    }
-
-    // initialize hash based on the seed number (we can put unique transaction # for this)
+    // initialize hash
     g_table = (unsigned int*)table;
-    g_hash.eax = eax;
-    g_hash.edx = edx;
-
-    // gas initialization
-    res = read(fd, &eax, 4);
-    res += read(fd, &edx, 4);
-
-    if(res!=8){
-        fprintf(stderr, "FATAL: cannot read 'fuzzcoin.conf' contents (gas)\n");
-        isFinished = true;
-        _exit(0);
-    }
-
-    g_gas = edx << 32;
-    g_gas = g_gas | eax;
-
-    // init current coverage map
-    memset(cov_map, 0, COV_MAP_SIZE);
+    g_hash.eax = 0xdeadbeef;
+    g_hash.edx = 0xcafebabe;
 }
 
 // Alternative way to put ctors callback.
