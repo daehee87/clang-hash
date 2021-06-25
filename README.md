@@ -16,3 +16,7 @@
 
 Change under [llvm/projects/compiler-rt/lib/fuzzcoin](llvm/projects/compiler-rt/lib/fuzzcoin)
 
+## Get hash via file
+hash appended to `.clang_hash` file.
+current directory should be writable!
+

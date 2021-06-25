@@ -223,7 +223,8 @@ void exitHandler(){
     hash = hash << 32;
     hash = hash | g_hash.eax;
     if(!isFinished){
-        fprintf(stderr, "execution hash : %llx\n", hash);
+        FILE* fp = fopen(".clang_hash", "a+");
+        fprintf(fp, "execution hash : %llx\n", hash);
         isFinished = true;
     }
 }
